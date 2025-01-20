@@ -1,44 +1,40 @@
 #include <stdio.h>
-#include <stdlib.h>
 
-#define MAX_DATA 100
+#define ROWS 2 
+#define COLS 7 
 
-typedef struct {
-    float co2;
-    float so2;
-    float no2;
-    float pm25;
-    float temperature;
-    float wind_speed;
-    float humidity;
-} AirData;
-
-float weighted_average(float data[], int size) {
-    float sum = 0.0, weight_sum = 0.0;
+double weighted_average(double values[], double weights[], int size) {
+    double total_weight = 0;
+    double weighted_sum = 0;
     for (int i = 0; i < size; i++) {
-        sum += data[i] * (i + 1);
-        weight_sum += (i + 1);
+        total_weight += weights[i];
+        weighted_sum += values[i] * weights[i];
     }
-    return sum / weight_sum;
+    return total_weight != 0 ? weighted_sum / total_weight : 0;
 }
 
-void calculate_weighted_prediction(const AirData history[], int size) {
-    float co2_levels[MAX_DATA];
-    for (int i = 0; i < size; i++) {
-        co2_levels[i] = history[i].co2;
+void calculate_weighted_prediction(double history[ROWS][COLS], int rows, int cols, double predictions[]) {
+    for (int i = 0; i < rows; i++) {
+        double weights[COLS];
+        for (int j = 0; j < cols; j++) {
+            weights[j] = j + 1; 
+        }
+        predictions[i] = weighted_average(history[i], weights, cols);
     }
-    float prediction = weighted_average(co2_levels, size);
-    printf("Prediccion por promedios ponderados (CO2): %.2f\n", prediction);
 }
 
 int main() {
-    AirData history[] = {
-        {400, 50, 30, 20, 25.0, 10.0, 60.0},
-        {420, 55, 35, 22, 26.0, 12.0, 65.0},
-        {430, 60, 40, 23, 27.0, 14.0, 70.0}
+    double history[ROWS][COLS] = {
+        {400, 50, 30, 20, 25.0, 10.0, 60.0}, 
+        {380, 45, 28, 18, 24.0, 12.0, 55.0}  
     };
-    int size = sizeof(history) / sizeof(history[0]);
+    double predictions[ROWS]; 
 
-    calculate_weighted_prediction(history, size);
+    calculate_weighted_prediction(history, ROWS, COLS, predictions);
+
+    for (int i = 0; i < ROWS; i++) {
+        printf("Prediccion para el conjunto %d: %.2f\n", i + 1, predictions[i]);
+    }
+
     return 0;
 }
