@@ -31,7 +31,20 @@ void linear_regression(const float x[], const float y[], int n, float *m, float 
     }
 }
 
+void predict_new_values(float m, float b, const float new_temps[], int size) {
+    printf("Predicciones de CO2 para nuevas temperaturas:\n");
+    for (int i = 0; i < size; i++) {
+        float predicted_co2 = m * new_temps[i] + b;
+        printf("Temp: %.2f -> CO2: %.2f\n", new_temps[i], predicted_co2);
+    }
+}
+
 void calculate_regression_prediction(const AirData history[], int size) {
+    if (size < 2) {
+        printf("Error: Se necesitan al menos dos datos para realizar la regresión lineal.\n");
+        return;
+    }
+
     float co2_levels[MAX_DATA], temp_levels[MAX_DATA];
     for (int i = 0; i < size; i++) {
         co2_levels[i] = history[i].co2;
@@ -40,6 +53,9 @@ void calculate_regression_prediction(const AirData history[], int size) {
     float m, b;
     linear_regression(temp_levels, co2_levels, size, &m, &b);
     printf("Prediccion por regresion lineal (CO2 vs Temp): y = %.2fx + %.2f\n", m, b);
+
+    float new_temps[] = {28.0, 29.0, 30.0};
+    predict_new_values(m, b, new_temps, sizeof(new_temps) / sizeof(new_temps[0]));
 }
 
 int main() {
